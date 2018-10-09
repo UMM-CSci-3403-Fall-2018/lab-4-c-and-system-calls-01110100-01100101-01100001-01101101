@@ -6,17 +6,76 @@
 
 #define BUF_SIZE 1024
 
+bool is_vowel(char letter);
+int determineLength(char *str);
+int copy_non_vowels(int num_chars, char* in_buf, char* out_buf);
+void disemvowel(FILE* inputFile, FILE* outputFile);
+
+int main(int argc, char *argv[]) {
+    FILE *inputFile;
+    FILE *outputFile;
+
+    // Open files specificed in arguments
+    inputFile = fopen(argv[1], "r");
+    outputFile = fopen(argv[2], "w");
+
+    // Run disemvowel
+    disemvowel(inputFile, outputFile);
+
+    // Close the input and output files
+    fclose(inputFile);
+    fclose(outputFile);
+
+    return 0;
+}
+
+// Takes the input and output files and reads the input file
+// and feeds that to copy_non_vowels and then writes the results
+// to the out_buf
+void disemvowel(FILE* inputFile, FILE* outputFile) {
+    char* in_buf[BUF_SIZE];
+    char* out_buf[BUF_SIZE];
+
+    // Find the inital number of items read from the inputFile
+    int numRead = fread(in_buf, sizeof(in_buf), BUF_SIZE, inputFile);
+
+    // As long as there is data to read, disemvowel with copy_non_vowels,
+    // write it to the output file and find the number of items read
+    while(readNum > 0) {
+      copy_non_vowels(strlen(in_buf), in_buf, out_buf);
+      fwrite(out_buf, sizeof(out_buf), BUF_SIZE, outputFile);
+      numRead = fread(in_buf, sizeof(in_buf), BUF_SIZE, inputFile);
+    }
+}
+
+// Takes the in_buf, removes the vowels and puts it in the out_buf
+int copy_non_vowels(int num_chars, char* in_buf, char* out_buf) {
+   out_buf = (char*) calloc(determineLength(in_buf), sizeof(char));
+   int j = 0;
+
+   // Loops through the in_buf and if in_buf[i]
+   // isn't a vowel, add it to the out_buf
+   for(int i = 0; i < num_chars; i++) {
+     if (!(is_vowel(in_buf[i]))) {
+	      out_buf[j] = in_buf[i];
+	      j++;
+     }
+   }
+
+   // Setting the null terminator after the string in out_buf
+   out_buf[j] = '\0';
+
+   return j;
+}
+
+// Takes a char and determines if it's a vowel
 bool is_vowel(char letter) {
     letter = tolower(letter);
         switch(letter) {
                 case 'a':
-                        return true;
                 case 'e':
-                        return true;
                 case 'i':
-                        return true;
                 case 'o':
-                        return true;
                 case 'u':
                         return true;
                 default :
@@ -24,59 +83,16 @@ bool is_vowel(char letter) {
         }
 }
 
+// Takes a char string and determines it's length without vowels in it
+// so we know how big to allocate for the disemvoweled string
+int determineLength(char *str) {
+  int count = 0;
 
-int copy_non_vowels(int num_chars, char* in_buf, char* out_buf) {
-   int j = 0;
+  for(unsigned int i = 0; i < strlen(str); i++) {
+	   if (str[i] != is_vowel(str[i])) {
+	      count++;
+	 	}
+	}
 
-   for(int i = 0; i < num_chars; i++) {
-     if (!(is_vowel(in_buf[i]))) {
-	out_buf[j] = in_buf[i];
-	j++;
-     }
-    }
-	
-    out_buf[j] = '\0';
-
-    return j - 1;
-}
-
-void disemvowel(FILE* inputFile, FILE* outputFile) {
-    long size;
-
-    fseek(inputFile, 0L, SEEK_END);
-    size = ftell(inputFile);
-    rewind(inputFile);
-
-    char* outbuf = (char*) calloc(size + 1, sizeof(char));
-
-    char* inbuf = (char*) calloc(size + 1, sizeof(char));
-    if (!inbuf) {
-      fclose(inputFile);
-      fputs("memory alloc fails", stderr);
-      exit(1);
-    }
-
-    if (1 != fread(inbuf, size, 1, inputFile)){
-      fclose(inputFile);
-      free(inbuf);
-      fputs("entire read fails", stderr);
-      exit(1);
-    }
-    
-    int new_size = copy_non_vowels(strlen(inbuf), inbuf, outbuf);
-}
-
-int main(int argc, char *argv[]) { 
-    FILE *inputFile; 
-    FILE *outputFile;
-
-    inputFile = fopen(argv[1], "r");
-    outputFile = fopen(argv[2], "w");
-
-    disemvowel(inputFile, outputFile);
-
-    fclose(inputFile);
-    fclose(outputFile);
-
-    return 0; 
+	return count;
 }

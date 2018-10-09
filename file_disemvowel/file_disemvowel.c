@@ -37,14 +37,14 @@ void disemvowel(FILE* inputFile, FILE* outputFile) {
     char* out_buf[BUF_SIZE];
 
     // Find the inital number of items read from the inputFile
-    int numRead = fread(in_buf, sizeof(in_buf), BUF_SIZE, inputFile);
+    int readNum = fread(in_buf, sizeof(in_buf), BUF_SIZE, inputFile);
 
     // As long as there is data to read, disemvowel with copy_non_vowels,
     // write it to the output file and find the number of items read
     while(readNum > 0) {
-      copy_non_vowels(strlen(in_buf), in_buf, out_buf);
+      int tmp = copy_non_vowels(strlen(in_buf), in_buf, out_buf);
       fwrite(out_buf, sizeof(out_buf), BUF_SIZE, outputFile);
-      numRead = fread(in_buf, sizeof(in_buf), BUF_SIZE, inputFile);
+      readNum = fread(in_buf, sizeof(in_buf), BUF_SIZE, inputFile);
     }
 }
 

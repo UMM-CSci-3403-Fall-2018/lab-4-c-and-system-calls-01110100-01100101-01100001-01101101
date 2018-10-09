@@ -15,12 +15,27 @@ int main(int argc, char *argv[]) {
     FILE *inputFile;
     FILE *outputFile;
 
-    // Open files specificed in arguments
-    inputFile = fopen(argv[1], "r");
-    outputFile = fopen(argv[2], "w");
-
-    // Run disemvowel
-    disemvowel(inputFile, outputFile);
+    // If there are no files provided, program will assume standard input is being provided.
+    // If there is one file providedm, program will take data from the file and output to standard output
+    // If two files are provided, program will take data from input file and write it to the output file
+    // If an invalid number of arguments are provided, program will get mad and quit
+    if(argc == 1) {
+      inputFile = stdin;
+      outputFile = stdout;
+      disemvowel(inputFile, outputFile);
+    } else if(argc == 2) {
+      inputFile = fopen(argv[1], "r");
+      outputFile = stdout;
+      disemvowel(inputFile, outputFile);
+    } else if(argc == 3) {
+      // Open files specificed in arguments
+      inputFile = fopen(argv[1], "r");
+      outputFile = fopen(argv[2], "w");
+      disemvowel(inputFile, outputFile);
+    } else {
+      printf("Wrong number of inputs! Try again!\n");
+      return 0;
+    }
 
     // Close the input and output files
     fclose(inputFile);
@@ -33,24 +48,23 @@ int main(int argc, char *argv[]) {
 // and feeds that to copy_non_vowels and then writes the results
 // to the out_buf
 void disemvowel(FILE* inputFile, FILE* outputFile) {
-    char* in_buf[BUF_SIZE];
-    char* out_buf[BUF_SIZE];
+    char in_buf[BUF_SIZE];
+    char out_buf[BUF_SIZE];
 
-    // Find the inital number of items read from the inputFile
-    int numRead = fread(in_buf, sizeof(in_buf), BUF_SIZE, inputFile);
+    // Initial read of the input 
+    int numRead = fread(in_buf, sizeof(char), BUF_SIZE, inputFile);
 
     // As long as there is data to read, disemvowel with copy_non_vowels,
     // write it to the output file and find the number of items read
-    while(readNum > 0) {
-      copy_non_vowels(strlen(in_buf), in_buf, out_buf);
-      fwrite(out_buf, sizeof(out_buf), BUF_SIZE, outputFile);
-      numRead = fread(in_buf, sizeof(in_buf), BUF_SIZE, inputFile);
+    while(numRead > 0) {
+      int n = copy_non_vowels(numRead, in_buf, out_buf);
+      fwrite(out_buf, sizeof(char), n, outputFile);
+      numRead = fread(in_buf, sizeof(char), BUF_SIZE, inputFile);
     }
 }
 
 // Takes the in_buf, removes the vowels and puts it in the out_buf
 int copy_non_vowels(int num_chars, char* in_buf, char* out_buf) {
-   out_buf = (char*) calloc(determineLength(in_buf), sizeof(char));
    int j = 0;
 
    // Loops through the in_buf and if in_buf[i]
@@ -61,9 +75,6 @@ int copy_non_vowels(int num_chars, char* in_buf, char* out_buf) {
 	      j++;
      }
    }
-
-   // Setting the null terminator after the string in out_buf
-   out_buf[j] = '\0';
 
    return j;
 }
@@ -81,18 +92,4 @@ bool is_vowel(char letter) {
                 default :
                         return false;
         }
-}
-
-// Takes a char string and determines it's length without vowels in it
-// so we know how big to allocate for the disemvoweled string
-int determineLength(char *str) {
-  int count = 0;
-
-  for(unsigned int i = 0; i < strlen(str); i++) {
-	   if (str[i] != is_vowel(str[i])) {
-	      count++;
-	 	}
-	}
-
-	return count;
 }

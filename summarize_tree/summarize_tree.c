@@ -9,13 +9,9 @@
 static int num_dirs, num_regular;
 
 bool is_dir(const char* path) {
-  /*
-   * Use the stat() function (try "man 2 stat") to determine if the file
-   * referenced by path is a directory or not.  Call stat, and then use
-   * S_ISDIR to see if the file is a directory. Make sure you check the
-   * return value from stat in case there is a problem, e.g., maybe the
-   * the file doesn't actually exist.
-   */
+  struct stat buf;
+  stat(path, &buf);
+  return S_ISDIR(buf.st_mode);
 }
 
 /* 
@@ -25,23 +21,29 @@ bool is_dir(const char* path) {
 void process_path(const char*);
 
 void process_directory(const char* path) {
-  /*
-   * Update the number of directories seen, use opendir() to open the
-   * directory, and then use readdir() to loop through the entries
-   * and process them. You have to be careful not to process the
-   * "." and ".." directory entries, or you'll end up spinning in
-   * (infinite) loops. Also make sure you closedir() when you're done.
-   *
-   * You'll also want to use chdir() to move into this new directory,
-   * with a matching call to chdir() to move back out of it when you're
-   * done.
-   */
-}
+  
+  DIR *dir;
+  struct dirent *entry;
+  num_dirs++;
 
+  dir = opendir(path);
+  if (dir == NULL) {
+    perror("this is an error opening the directory");
+  } else {
+    chdir(path);
+    entry = readdir(dir);
+    while (entry != NULL) {
+      if (entry->d_name[0] != '.') {
+	process_path(entry->d_name);
+      }
+      entry = readdir(dir);
+    }
+    chdir("..");
+    closedir(dir);
+  }
+}
 void process_file(const char* path) {
-  /*
-   * Update the number of regular files.
-   */
+  num_regular++;
 }
 
 void process_path(const char* path) {

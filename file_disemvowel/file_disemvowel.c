@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
       disemvowel(inputFile, outputFile);
     } else {
       printf("Wrong number of inputs! Try again!\n");
-      return 0;
+      return 1;
     }
 
     // Close the input and output files

@@ -6,8 +6,10 @@
 #include <unistd.h>
 #include <string.h>
 
+// initialize our counters
 static int num_dirs, num_regular;
 
+// boolean function check whether the given path is a directory
 bool is_dir(const char* path) {
   struct stat buf;
   stat(path, &buf);
@@ -20,32 +22,40 @@ bool is_dir(const char* path) {
  */
 void process_path(const char*);
 
+// recursive function that counts every subdirectory of the given path including its self.
 void process_directory(const char* path) {
-  
+  // initialize the variables
   DIR *dir;
   struct dirent *entry;
   num_dirs++;
 
+  // start opening the directory
   dir = opendir(path);
   if (dir == NULL) {
     perror("this is an error opening the directory");
   } else {
+    // go into the subdirectory
     chdir(path);
     entry = readdir(dir);
     while (entry != NULL) {
       if (entry->d_name[0] != '.') {
+	// recursive call
 	process_path(entry->d_name);
       }
       entry = readdir(dir);
     }
+    // go out the subdirectory
     chdir("..");
+    // close the directory
     closedir(dir);
   }
 }
+// count files
 void process_file(const char* path) {
   num_regular++;
 }
 
+// distribute the files and the path to different functions
 void process_path(const char* path) {
   if (is_dir(path)) {
     process_directory(path);
@@ -65,8 +75,9 @@ int main (int argc, char *argv[]) {
   num_dirs = 0;
   num_regular = 0;
 
+  // execution call 
   process_path(argv[1]);
-
+  // print the results
   printf("There were %d directories.\n", num_dirs);
   printf("There were %d regular files.\n", num_regular);
 

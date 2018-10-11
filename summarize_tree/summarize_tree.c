@@ -12,11 +12,18 @@ static int num_dirs, num_regular;
 // boolean function check whether the given path is a directory
 bool is_dir(const char* path) {
   struct stat buf;
-  stat(path, &buf);
-  return S_ISDIR(buf.st_mode);
+
+  int i = stat(path, &buf);
+
+  if(i < 0) {
+    printf("error: this is not a directory. please try again.\n");
+    exit(-1);
+  } else {
+    return S_ISDIR(buf.st_mode);
+  }
 }
 
-/* 
+/*
  * I needed this because the multiple recursion means there's no way to
  * order them so that the definitions all precede the cause.
  */
@@ -33,6 +40,7 @@ void process_directory(const char* path) {
   dir = opendir(path);
   if (dir == NULL) {
     perror("this is an error opening the directory");
+    exit(-1);
   } else {
     // go into the subdirectory
     chdir(path);
@@ -75,7 +83,7 @@ int main (int argc, char *argv[]) {
   num_dirs = 0;
   num_regular = 0;
 
-  // execution call 
+  // execution call
   process_path(argv[1]);
   // print the results
   printf("There were %d directories.\n", num_dirs);

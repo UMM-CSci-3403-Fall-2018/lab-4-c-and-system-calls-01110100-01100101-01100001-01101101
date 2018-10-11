@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
       disemvowel(inputFile, outputFile);
     } else {
       printf("Wrong number of inputs! Try again!\n");
-      return 1;
+      exit(-1);
     }
 
     // Close the input and output files
@@ -51,7 +51,7 @@ void disemvowel(FILE* inputFile, FILE* outputFile) {
     char in_buf[BUF_SIZE];
     char out_buf[BUF_SIZE];
 
-    // Initial read of the input 
+    // Initial read of the input
     int numRead = fread(in_buf, sizeof(char), BUF_SIZE, inputFile);
 
     // As long as there is data to read, disemvowel with copy_non_vowels,
